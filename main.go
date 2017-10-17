@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -41,7 +42,33 @@ type client struct {
 	conn *grpc.ClientConn
 }
 
-type RequestMessage struct{}
+func (cli *client) Call() (*ResponseMessage, error) {
+	ctx := context.Background()
+
+	dec := json.NewDecoder(os.Stdin)
+	var m = make(map[string]interface{})
+	if dec.More() { // read only first json
+		err := dec.Decode(&m)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Printf("%v: %v\n", m, m)
+	}
+
+	in := &RequestMessage{payload: m}
+
+	out := &ResponseMessage{}
+	opts := make([]grpc.CallOption, 0)
+	err := grpc.Invoke(ctx, "/logos.sirius.rooms.Rooms/AddUser", in, out, cli.conn, opts...)
+	if err != nil {
+		return out, err
+	}
+	return out, nil
+}
+
+type RequestMessage struct {
+	payload map[string]interface{}
+}
 
 func (in *RequestMessage) Marshal() ([]byte, error) {
 	// 0000 1000||0000 0001 -> 0x08, 0x01
@@ -88,18 +115,4 @@ func (out *ResponseMessage) Unmarshal(buf []byte) error {
 type ProtoField struct {
 	Number uint8
 	Type   uint8
-}
-
-func (cli *client) Call() (*ResponseMessage, error) {
-	ctx := context.Background()
-
-	in := &RequestMessage{}
-
-	out := &ResponseMessage{}
-	opts := make([]grpc.CallOption, 0)
-	err := grpc.Invoke(ctx, "/logos.sirius.rooms.Rooms/AddUser", in, out, cli.conn, opts...)
-	if err != nil {
-		return out, err
-	}
-	return out, nil
 }
