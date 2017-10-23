@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/konjoot/kaboom/config"
 	"google.golang.org/grpc"
 )
 
@@ -17,8 +18,10 @@ var (
 
 func main() {
 
+	conf := config.New()
+
 	opts := []grpc.DialOption{grpc.WithInsecure()}
-	addr = "localhost:50051"
+	addr = conf.Listen
 
 	conn, err := grpc.Dial(addr, opts...)
 	if err != nil {
@@ -52,14 +55,15 @@ func (cli *client) Call() (*ResponseMessage, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Printf("%v: %v\n", m, m)
+		log.Printf("%v: %v\n", m, m)
 	}
 
 	in := &RequestMessage{payload: m}
 
 	out := &ResponseMessage{}
 	opts := make([]grpc.CallOption, 0)
-	err := grpc.Invoke(ctx, "/logos.sirius.rooms.Rooms/AddUser", in, out, cli.conn, opts...)
+	err := grpc.Invoke(ctx, "/mock.Mock/Base", in, out, cli.conn, opts...)
+	log.Println("err => ", err)
 	if err != nil {
 		return out, err
 	}
@@ -71,6 +75,10 @@ type RequestMessage struct {
 }
 
 func (in *RequestMessage) Marshal() ([]byte, error) {
+	for key, val := range in.payload {
+		log.Println(key)
+		log.Println(val)
+	}
 	// 0000 1000||0000 0001 -> 0x08, 0x01
 	// 0001 0010 0000 0111 -> 0x12 0x07
 	// 0x12 0x07||0x75 0x73 0x65 0x72 0x5F 0x69 0x64
