@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package mock;
+
+service Mock {
+    rpc Base(BaseMsg) returns (EmptyMsg) {}
+}
+
+message BaseMsg {
+    int64 ID = 1;
+    string UserID = 2;
+    string ScopeID = 3;
+}
+
+message EmptyMsg {}
