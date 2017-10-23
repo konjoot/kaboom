@@ -3,4 +3,4 @@ tiny gRPC cli tool
 
 ## Proof-Of-Concept
 
-- [ ] gRPC mock server
+- [x] gRPC Base mock server
