@@ -4,7 +4,7 @@ tiny gRPC cli tool
 ## Proof-Of-Concept
 
 - [x] gRPC Base mock server
-- [ ] split the functionality into three main parts (encoder, processor, decoder)
+- [x] split the functionality into three main parts (encoder, processor, decoder)
 - [ ] [encoder] read from stdin, write to stdout encoded message, to stderr - logs and errors
 - [ ] [processor] read from stdin, call gRPC, write answer to stdout, to stderr - logs and errors
 - [ ] [decoder] read from stdin, write to stdout decoded string, to stderr - logs and errors
