@@ -5,7 +5,8 @@ tiny gRPC cli tool
 
 - [x] gRPC Base mock server
 - [x] split the functionality into three main parts (encoder, processor, decoder)
-- [ ] [encoder] read from stdin, write to stdout encoded message, to stderr - logs and errors
+- [ ] [encoder] read from stdin, write to stdout encoded message, to stderr - logs and errors:
+    - [ ] use encoding/binary package for protobuf Encoding\Decoding
 - [ ] [processor] read from stdin, call gRPC, write answer to stdout, to stderr - logs and errors
 - [ ] [decoder] read from stdin, write to stdout decoded string, to stderr - logs and errors
 - [ ] clean code
