@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -9,7 +10,15 @@ import (
 )
 
 func main() {
-	bts, err := encoder.Encode(os.Stdin)
+	var ruleString string
+	flag.StringVar(ruleString, "rules", "", "semicolon separated string with encoding rules, for example 'one:string;two:int64'")
+	flag.Parse()
+
+	rules, err := encoder.ParseRules(rulesString)
+	if err != nil {
+		log.Println(err)
+	}
+	bts, err := encoder.Encode(os.Stdin, rules)
 	if err != nil {
 		log.Println(err)
 	}
