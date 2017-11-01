@@ -27,8 +27,7 @@ func ParseRules(in string) ([]*Rule, error) {
 
 	reader := bufio.NewReader(strings.NewReader(in))
 
-	var err error
-	var i = 0
+	var i uint8
 
 	for {
 		i++
@@ -38,12 +37,12 @@ func ParseRules(in string) ([]*Rule, error) {
 			return rules, err
 		}
 
-		ruleParts := strings.SplitN(ruleString, 2)
+		ruleParts := strings.SplitN(ruleString, ":", 2)
 		if len(ruleParts) != 2 {
 			continue
 		}
 
-		rules = append(rules, &Rule{Number: i, Name: ruleParts[0], Type: ruleParts[1]})
+		rules = append(rules, &Rule{fieldNumber: i, fieldName: ruleParts[0], fieldType: ruleParts[1]})
 	}
 }
 
@@ -71,7 +70,7 @@ func Encode(in io.Reader, rules []*Rule) ([]byte, error) {
 	out := bytes.NewBuffer(make([]byte, 0, 0))
 	var field uint8
 
-	for rule := range rules {
+	for _, rule := range rules {
 
 		field = (rule.Number() << 3) | rule.Type()
 
@@ -79,11 +78,13 @@ func Encode(in io.Reader, rules []*Rule) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		err := binary.Write(out, binary.LittleEndian, &data[rule.Name()])
+		err = binary.Write(out, binary.LittleEndian, data[rule.Name()])
 		if err != nil {
 			return nil, err
 		}
 	}
+
+	return out.Bytes(), nil
 }
 
 type Rule struct {
@@ -103,6 +104,12 @@ func (r *Rule) Name() string {
 func (r *Rule) Type() uint8 {
 	return 0
 }
+
+type RuleSorter []*Rule
+
+func (rs RuleSorter) Len() int           { return len(rs) }
+func (rs RuleSorter) Swap(i, j int)      { rs[i], rs[j] = rs[j], rs[i] }
+func (rs RuleSorter) Less(i, j int) bool { return rs[i].fieldNumber < rs[j].fieldNumber }
 
 type FieldType int
 
