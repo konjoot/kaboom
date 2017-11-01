@@ -1,7 +1,13 @@
 package encoder
 
-import "io"
-import "encoding/json"
+import (
+	"bufio"
+	"bytes"
+	"encoding/binary"
+	"encoding/json"
+	"io"
+	"strings"
+)
 
 // // 0000 1000||0000 0001 -> 0x08, 0x01
 // // 0001 0010 0000 0111 -> 0x12 0x07
@@ -14,8 +20,36 @@ import "encoding/json"
 // 	0x1a, 0x08, 0x73, 0x63, 0x6F, 0x70, 0x65, 0x5F, 0x69, 0x64, // 3|2: scope_id
 // }, nil
 
+// ParseRules parses string with rules for encoder
+// format: "name:type;name:type;..." e.g. "first:string;second:int64"
+func ParseRules(in string) ([]*Rule, error) {
+	var rules = make([]*Rule, 0, 10)
+
+	reader := bufio.NewReader(strings.NewReader(in))
+
+	var err error
+	var i = 0
+
+	for {
+		i++
+
+		ruleString, err := reader.ReadString(';')
+		if err != nil {
+			return rules, err
+		}
+
+		ruleParts := strings.SplitN(ruleString, 2)
+		if len(ruleParts) != 2 {
+			continue
+		}
+
+		rules = append(rules, &Rule{Number: i, Name: ruleParts[0], Type: ruleParts[1]})
+	}
+}
+
 // Encode JSON from io.Reader to inner protobuf format
-func Encode(in io.Reader, rules []FieldType) ([]byte, error) {
+// not fully implemented
+func Encode(in io.Reader, rules []*Rule) ([]byte, error) {
 	data := make(map[string]interface{})
 	jsonDecoder := json.NewDecoder(in)
 
@@ -34,33 +68,69 @@ func Encode(in io.Reader, rules []FieldType) ([]byte, error) {
 		return []byte{}, nil
 	}
 
-	out := make([]byte, 0, 0)
-	for i := 0; val := range data; i++ {
-		var encodedFieldName uint8
-		switch rules[i] {
-		case VARINT:
-			encodedFieldName = i
-			encodedFieldName << 3
-			encodedFieldName |= VARINT
-		case X64BIT:
-		case LENGTH_DELIMITED:
-		case START_GROUP:
-		case END_GROUP:
-		case X32BIT:
-		default: 
-			continue
+	out := bytes.NewBuffer(make([]byte, 0, 0))
+	var field uint8
+
+	for rule := range rules {
+
+		field = (rule.Number() << 3) | rule.Type()
+
+		err := binary.Write(out, binary.LittleEndian, &field)
+		if err != nil {
+			return nil, err
 		}
-		// out := append(out, )
+		err := binary.Write(out, binary.LittleEndian, &data[rule.Name()])
+		if err != nil {
+			return nil, err
+		}
 	}
+}
+
+type Rule struct {
+	fieldNumber uint8
+	fieldName   string
+	fieldType   string
+}
+
+func (r *Rule) Number() uint8 {
+	return 0
+}
+
+func (r *Rule) Name() string {
+	return ""
+}
+
+func (r *Rule) Type() uint8 {
+	return 0
 }
 
 type FieldType int
 
 const (
-	VARINT FieldType = iota
-	X64BIT
-	LENGTH_DELIMITED
-	START_GROUP
-	END_GROUP
-	X32BIT
+	Varing FieldType = iota
+	X64Bit
+	LengthDelimited
+	StartGroup
+	EndGroup
+	X32Bit
+)
+
+type OriginFieldType int
+
+const (
+	// Values, stored as Varint data
+	Int32 OriginFieldType = iota
+	Int64
+	Uint32
+	Uint64
+	Sint32
+	Sint64
+	Bool
+	Enum
+
+	// Values, stored as LengthDelimited data
+	String
+	Bytes
+	EmbeddedMessages
+	PackedRepeatedFields
 )
