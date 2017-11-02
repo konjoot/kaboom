@@ -66,11 +66,10 @@ func ParseRules(in string) ([]Rule, error) {
 		err        error
 		ruleString string
 		rules      = make([]Rule, 0, 10)
-		reader := bufio.NewReader(strings.NewReader(in))
+		reader     = bufio.NewReader(strings.NewReader(in))
 	)
 
-	for err != io.EOF {
-		i++
+	for i = 1; err != io.EOF; i++ {
 
 		ruleString, err = reader.ReadString(';')
 		if err != nil && err != io.EOF {
@@ -98,7 +97,7 @@ func Encode(in io.Reader, rules []Rule) ([]byte, error) {
 	jsonDecoder := json.NewDecoder(in)
 
 	if !jsonDecoder.More() {
-		// nothing to encode
+		// nothing to decode
 		return []byte{}, nil
 	}
 
@@ -117,6 +116,7 @@ func Encode(in io.Reader, rules []Rule) ([]byte, error) {
 
 	for _, rule := range rules {
 
+		// skip undefined fields
 		if rule.Type() == Undefined {
 			continue
 		}
