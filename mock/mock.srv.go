@@ -1,11 +1,16 @@
 package mock
 
-import context "golang.org/x/net/context"
+import (
+	"log"
+
+	context "golang.org/x/net/context"
+)
 
 // Endpoint service that implements MockServer interface
 type Endpoint struct{}
 
 // Base is a handler for MockServer interface
-func (e *Endpoint) Base(context.Context, *BaseMsg) (*EmptyMsg, error) {
+func (e *Endpoint) Base(_ context.Context, bm *BaseMsg) (*EmptyMsg, error) {
+	log.Println(bm)
 	return &EmptyMsg{}, nil
 }
