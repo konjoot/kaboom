@@ -17,7 +17,7 @@ func main() {
 		log.Println(err)
 	}
 
-	var opts []grpc.ServerOption
+	opts := []grpc.ServerOption{}
 
 	s := grpc.NewServer(opts...)
 

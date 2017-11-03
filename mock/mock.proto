@@ -7,9 +7,11 @@ service Mock {
 }
 
 message BaseMsg {
-    int64 ID = 1;
-    string UserID = 2;
-    string ScopeID = 3;
+    uint32 Uint32 = 1;
+    uint64 Uint64 = 2;
+    string String = 3;
+    int32 Int32 = 4;
+    int64 Int64 = 5;
 }
 
 message EmptyMsg {}
