@@ -5,6 +5,7 @@
 *.dylib
 kaboom
 .vscode/
+mock-srv
 
 # Test binary, build with `go test -c`
 *.test
