@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -48,15 +47,15 @@ type client struct {
 func (cli *client) Call() (*ResponseMessage, error) {
 	ctx := context.Background()
 
-	dec := json.NewDecoder(os.Stdin)
+	// dec := json.NewDecoder(os.Stdin)
 	var m = make(map[string]interface{})
-	if dec.More() { // read only first json
-		err := dec.Decode(&m)
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("%v: %v\n", m, m)
-	}
+	// if dec.More() { // read only first json
+	// 	err := dec.Decode(&m)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	log.Printf("%v: %v\n", m, m)
+	// }
 
 	in := &RequestMessage{payload: m}
 
@@ -79,15 +78,9 @@ func (in *RequestMessage) Marshal() ([]byte, error) {
 		log.Println(key)
 		log.Println(val)
 	}
-	// 0000 1000||0000 0001 -> 0x08, 0x01
-	// 0001 0010 0000 0111 -> 0x12 0x07
-	// 0x12 0x07||0x75 0x73 0x65 0x72 0x5F 0x69 0x64
-	// 0001 1010 0100 1000 -> 0x1a, 0x08
-	// 0x1a, 0x08||0x73 0x63, 0x6F, 0x70, 0x65, 0x5F, 0x69, 0x64
+
 	return []byte{
-		0x08, 0x01, // 1|0: 1
-		0x12, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5F, 0x69, 0x64, // 2|2: user_id
-		0x1a, 0x08, 0x73, 0x63, 0x6F, 0x70, 0x65, 0x5F, 0x69, 0x64, // 3|2: scope_id
+		0x28, 0x03,
 	}, nil
 }
 
