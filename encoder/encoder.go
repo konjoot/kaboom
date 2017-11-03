@@ -12,13 +12,13 @@ import (
 // Innder proto field types
 const (
 	// Undefined (reserved) field type, such fields will be ignored during encoding
-	Undefined uint8 = iota
-	Varint
+	Varint uint8 = iota
 	X64Bit
 	LengthDelimited
 	StartGroup
 	EndGroup
 	X32Bit
+	Undefined
 )
 
 // String representation of rule types
@@ -26,20 +26,17 @@ const (
 // in rule strings
 const (
 	// types which encodes as Varint type
-	IntString    = "int"
-	Int32String  = "int32"
-	Int64String  = "int64"
-	UintString   = "uint"
-	Uint32String = "uint32"
-	Uint64String = "uint64"
-	SintString   = "sint"
-	Sint32String = "sint32"
-	Sint64String = "sint64"
-	BoolString   = "bool"
+	Int32  = "int32"
+	Int64  = "int64"
+	Uint32 = "uint32"
+	Uint64 = "uint64"
+	Sint32 = "sint32"
+	Sint64 = "sint64"
+	Bool   = "bool"
 
 	// types which encodes as LengthDelimited types
-	StringString = "string"
-	BytesString  = "bytes"
+	String = "string"
+	Bytes  = "bytes"
 )
 
 // Rule is the interface which every rule should provide
@@ -47,6 +44,7 @@ type Rule interface {
 	Number() uint8
 	Name() string
 	Type() uint8
+	OriginType() string
 }
 
 // RuleSorter is the container for sorting slises of Rule
@@ -101,7 +99,7 @@ func Encode(in io.Reader, rules []Rule) ([]byte, error) {
 		return []byte{}, nil
 	}
 
-	if err := jsonDecoder.Decode(data); err != nil {
+	if err := jsonDecoder.Decode(&data); err != nil {
 		// something went wrong during JSON decoding
 		return nil, err
 	}
@@ -127,7 +125,33 @@ func Encode(in io.Reader, rules []Rule) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = binary.Write(out, binary.LittleEndian, data[rule.Name()])
+
+		value := data[rule.Name()]
+		switch value.(type) {
+		case string:
+			val := []byte(value.(string))
+			bts := make([]byte, 8, 8) // 64 bits
+			n := binary.PutUvarint(bts, uint64(len(val)))
+			err = binary.Write(out, binary.LittleEndian, append(bts[:n], val...))
+		case float64:
+			switch rule.OriginType() {
+			case Uint64, Uint32:
+				bts := make([]byte, 8, 8) // 64 bits
+				n := binary.PutUvarint(bts, uint64(value.(float64)))
+				err = binary.Write(out, binary.LittleEndian, bts[:n])
+			case Int64, Int32:
+				val := value.(float64)
+				if val > 0 {
+					bts := make([]byte, 8, 8) // 64 bits
+					n := binary.PutUvarint(bts, uint64(val))
+					err = binary.Write(out, binary.LittleEndian, bts[:n])
+				} else {
+					bts := make([]byte, 16, 16) // 64 bits
+					n := binary.PutVarint(bts, int64(val))
+					err = binary.Write(out, binary.LittleEndian, bts[:n])
+				}
+			}
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -153,15 +177,19 @@ func (r *rule) Name() string {
 
 func (r *rule) Type() uint8 {
 	switch r.fieldType {
-	case IntString, Int32String, Int64String,
-		UintString, Uint32String, Uint64String,
-		SintString, Sint32String, Sint64String,
-		BoolString:
+	case Int32, Int64,
+		Uint32, Uint64,
+		Sint32, Sint64,
+		Bool:
 		return Varint
-	case StringString,
-		BytesString:
+	case String,
+		Bytes:
 		return LengthDelimited
 	}
 
 	return Undefined
+}
+
+func (r *rule) OriginType() string {
+	return r.fieldType
 }
