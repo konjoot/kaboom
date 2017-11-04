@@ -82,7 +82,12 @@ func ParseRules(in string) ([]Rule, error) {
 			continue
 		}
 
-		rules = append(rules, &rule{fieldNumber: i, fieldName: ruleParts[0], fieldType: ruleParts[1]})
+		rules = append(rules,
+			&rule{
+				fieldNumber: i,
+				fieldName:   ruleParts[0],
+				fieldType:   ruleParts[1],
+			})
 	}
 
 	return rules, nil
@@ -130,27 +135,19 @@ func Encode(in io.Reader, rules []Rule) ([]byte, error) {
 		switch value.(type) {
 		case string:
 			val := []byte(value.(string))
-			bts := make([]byte, 8, 8) // 64 bits
-			n := binary.PutUvarint(bts, uint64(len(val)))
+			bts := [8]byte{} // 64 bits
+			n := binary.PutUvarint(bts[:], uint64(len(val)))
 			err = binary.Write(out, binary.LittleEndian, append(bts[:n], val...))
 		case float64:
+			bts := [16]byte{} // 128 bits
+			var n int
 			switch rule.OriginType() {
-			case Uint64, Uint32:
-				bts := make([]byte, 8, 8) // 64 bits
-				n := binary.PutUvarint(bts, uint64(value.(float64)))
-				err = binary.Write(out, binary.LittleEndian, bts[:n])
-			case Int64, Int32:
-				val := value.(float64)
-				if val > 0 {
-					bts := make([]byte, 8, 8) // 64 bits
-					n := binary.PutUvarint(bts, uint64(val))
-					err = binary.Write(out, binary.LittleEndian, bts[:n])
-				} else {
-					bts := make([]byte, 16, 16) // 64 bits
-					n := binary.PutVarint(bts, int64(val))
-					err = binary.Write(out, binary.LittleEndian, bts[:n])
-				}
+			case Uint64, Uint32, Int32, Int64:
+				n = binary.PutUvarint(bts[:], uint64(value.(float64)))
+			case Sint64, Sint32:
+				n = binary.PutVarint(bts[:], int64(value.(float64)))
 			}
+			err = binary.Write(out, binary.LittleEndian, bts[:n])
 		}
 		if err != nil {
 			return nil, err

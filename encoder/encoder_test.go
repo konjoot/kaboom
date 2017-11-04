@@ -211,7 +211,7 @@ func TestEncode(t *testing.T) {
 				},
 			},
 			expBytes: []byte{
-				0x20, 0xab, 0x02,
+				0x20, 0xea, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
 			},
 			expErr: nil,
 		},
@@ -243,7 +243,71 @@ func TestEncode(t *testing.T) {
 				},
 			},
 			expBytes: []byte{
-				0x28, 0xab, 0x02,
+				0x28, 0xea, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01,
+			},
+			expErr: nil,
+		},
+		{
+			name: "Sint32Positive",
+			json: bytes.NewReader([]byte(`{"Sint32": 150}`)),
+			rules: []encoder.Rule{
+				&rule{
+					fieldName:       "Sint32",
+					fieldNumber:     6,
+					fieldType:       encoder.Varint,
+					fieldOriginType: encoder.Sint32,
+				},
+			},
+			expBytes: []byte{
+				0x30, 0xac, 0x02,
+			},
+			expErr: nil,
+		},
+		{
+			name: "Sint32Negative",
+			json: bytes.NewReader([]byte(`{"Sint32": -150}`)),
+			rules: []encoder.Rule{
+				&rule{
+					fieldName:       "Sint32",
+					fieldNumber:     6,
+					fieldType:       encoder.Varint,
+					fieldOriginType: encoder.Sint32,
+				},
+			},
+			expBytes: []byte{
+				0x30, 0xab, 0x02,
+			},
+			expErr: nil,
+		},
+		{
+			name: "Sint64Positive",
+			json: bytes.NewReader([]byte(`{"Sint64": 150}`)),
+			rules: []encoder.Rule{
+				&rule{
+					fieldName:       "Sint64",
+					fieldNumber:     7,
+					fieldType:       encoder.Varint,
+					fieldOriginType: encoder.Sint64,
+				},
+			},
+			expBytes: []byte{
+				0x38, 0xac, 0x02,
+			},
+			expErr: nil,
+		},
+		{
+			name: "Sint64Negative",
+			json: bytes.NewReader([]byte(`{"Sint64": -150}`)),
+			rules: []encoder.Rule{
+				&rule{
+					fieldName:       "Sint64",
+					fieldNumber:     7,
+					fieldType:       encoder.Varint,
+					fieldOriginType: encoder.Sint64,
+				},
+			},
+			expBytes: []byte{
+				0x38, 0xab, 0x02,
 			},
 			expErr: nil,
 		},
