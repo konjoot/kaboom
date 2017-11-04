@@ -12,6 +12,8 @@ message BaseMsg {
     string String = 3;
     int32 Int32 = 4;
     int64 Int64 = 5;
+    sint32 Sint32 = 6;
+    sint64 Sint64 = 7;
 }
 
 message EmptyMsg {}
