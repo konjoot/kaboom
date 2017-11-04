@@ -6,6 +6,7 @@
 kaboom
 .vscode/
 mock-srv
+grpc_test
 
 # Test binary, build with `go test -c`
 *.test
