@@ -6,7 +6,12 @@
     - [x] use encoding/binary package for protobuf Encoding\Decoding
     - [x] rules parser for the encoder
     - [x] review Encode
-    - [ ] tests for Encode
+    - [x] tests for Encode (uint, string)
+    - [x] try sint for negative numbers
+    - [x] understand how to encode negative int32\64 numbers
+    - [x] tests and functionality for int32\64 sint32\64
+    - [ ] tests and functionality for bytes
+    - [ ] tests and functionality for enums
 - [ ] [processor] read from stdin, call gRPC, write answer to stdout, to stderr - logs and errors
 - [ ] [decoder] read from stdin, write to stdout decoded string, to stderr - logs and errors
 - [ ] clean code
