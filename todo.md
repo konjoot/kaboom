@@ -11,7 +11,7 @@
     - [x] understand how to encode negative int32\64 numbers
     - [x] tests and functionality for int32\64 sint32\64
 - [ ] [processor]:
-    - [ ] read from stdin, call gRPC, write answer to stdout, to stderr - logs and errors
+    - [x] read from stdin, call gRPC, write answer to stdout, to stderr - logs and errors
     - [ ] tests
 - [ ] [decoder] read from stdin, write to stdout decoded string, to stderr - logs and errors
 - [ ] clean code
@@ -19,3 +19,4 @@
     - [ ] tests and functionality for bytes
     - [ ] tests and functionality for enums
     - [ ] the same for all supported by proto3 types
+    - [ ] change singnature of Encode method to Encode(io.Reader, []Rule, io.Writer) error
