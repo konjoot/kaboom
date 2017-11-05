@@ -2,7 +2,7 @@
 
 - [x] gRPC Base mock server
 - [x] split the functionality into three main parts (encoder, processor, decoder)
-- [ ] [encoder] read from stdin, write to stdout encoded message, to stderr - logs and errors:
+- [x] [encoder] read from stdin, write to stdout encoded message, to stderr - logs and errors:
     - [x] use encoding/binary package for protobuf Encoding\Decoding
     - [x] rules parser for the encoder
     - [x] review Encode
@@ -10,12 +10,12 @@
     - [x] try sint for negative numbers
     - [x] understand how to encode negative int32\64 numbers
     - [x] tests and functionality for int32\64 sint32\64
-    - [ ] tests and functionality for bytes
-    - [ ] tests and functionality for enums
-- [ ] [processor] read from stdin, call gRPC, write answer to stdout, to stderr - logs and errors
+- [ ] [processor]:
+    - [ ] read from stdin, call gRPC, write answer to stdout, to stderr - logs and errors
+    - [ ] tests
 - [ ] [decoder] read from stdin, write to stdout decoded string, to stderr - logs and errors
 - [ ] clean code
-- [ ] [encoder] encoding for int64 values
-- [ ] [encoder] encoding for string values
-- [ ] [encoder] encoding for int32 values
-- [ ] [processor] gRPC request processing
+- [ ] [encoder] improvement:
+    - [ ] tests and functionality for bytes
+    - [ ] tests and functionality for enums
+    - [ ] the same for all supported by proto3 types
