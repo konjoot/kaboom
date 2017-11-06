@@ -4,6 +4,7 @@ package mock;
 
 service Mock {
     rpc Base(BaseMsg) returns (EmptyMsg) {}
+    rpc Echo(EchoMsg) returns (EchoMsg) {}
 }
 
 message BaseMsg {
@@ -17,3 +18,8 @@ message BaseMsg {
 }
 
 message EmptyMsg {}
+
+message EchoMsg {
+    uint32 ID = 1;
+    string Msg = 2;
+}
