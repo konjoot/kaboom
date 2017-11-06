@@ -12,7 +12,7 @@
     - [x] tests and functionality for int32\64 sint32\64
 - [ ] [processor]:
     - [x] read from stdin, call gRPC, write answer to stdout, to stderr - logs and errors
-    - [ ] add echo handler in mock gRPC service
+    - [x] add echo handler in mock gRPC service
     - [ ] tests
 - [ ] [decoder] read from stdin, write to stdout decoded string, to stderr - logs and errors
 - [ ] clean code
