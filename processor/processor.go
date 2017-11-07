@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 
 	"github.com/golang/protobuf/proto"
-
 	"google.golang.org/grpc"
 )
 
@@ -16,7 +15,6 @@ import (
 // to the specified method (method), then it writes bytes of the response
 // into the io.Writer
 func Process(in io.Reader, addr, method string, out io.Writer) error {
-
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
 	conn, err := grpc.Dial(addr, opts...)
@@ -65,10 +63,10 @@ func (out *Response) Unmarshal(buf []byte) error {
 }
 
 // Reset is a method of the proto.Message interface
-func (out *Response) Reset() { *out = Response{} }
+func (out *Response) Reset() {} // nop func
 
 // String is a method of the proto.Message interface
 func (out *Response) String() string { return proto.CompactTextString(out) }
 
 // ProtoMessage is a method of the proto.Message interface
-func (*Response) ProtoMessage() {}
+func (*Response) ProtoMessage() {} // nop func

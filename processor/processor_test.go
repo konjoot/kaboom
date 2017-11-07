@@ -1,6 +1,7 @@
 package processor_test
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -21,7 +22,7 @@ func TestMain(m *testing.M) {
 	lis, err := net.Listen("tcp", conf.Listen)
 	if err != nil {
 		fmt.Println(err)
-		return
+		os.Exit(1)
 	}
 
 	opts := []grpc.ServerOption{}
@@ -45,10 +46,11 @@ func TestMain(m *testing.M) {
 }
 
 func TestProcess(t *testing.T) {
-
-	var err error
-	var bts []byte
-
+	var (
+		err  error
+		bts  []byte
+		conf = config.New()
+	)
 	for _, tc := range []struct {
 		name   string
 		in     io.Reader
@@ -57,7 +59,15 @@ func TestProcess(t *testing.T) {
 		out    io.ReadWriter
 		expBts []byte
 		expErr error
-	}{} {
+	}{
+		{
+			name:   "Success",
+			in:     bytes.NewReader([]byte{}),
+			addr:   conf.Listen,
+			method: "/mock.Mock/Echo",
+			out:    &bytes.Buffer{},
+		},
+	} {
 		t.Run(tc.name, func(t *testing.T) {
 			err = processor.Process(tc.in, tc.addr, tc.method, tc.out)
 			t.Log("err => ", err)
