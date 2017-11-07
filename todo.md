@@ -21,3 +21,4 @@
     - [ ] tests and functionality for enums
     - [ ] the same for all supported by proto3 types
     - [ ] change singnature of Encode method to Encode(io.Reader, []Rule, io.Writer) error
+- [ ] figure out why grpc.Invoke calls Reset() method on out interface
