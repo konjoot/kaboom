@@ -61,11 +61,28 @@ func TestProcess(t *testing.T) {
 		expErr error
 	}{
 		{
-			name:   "Success",
-			in:     bytes.NewReader([]byte{}),
+			name:   "SuccessAllFields",
+			in:     bytes.NewReader([]byte{0x08, 0x96, 0x01, 0x12, 0x06, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67}),
 			addr:   conf.Listen,
 			method: "/mock.Mock/Echo",
 			out:    &bytes.Buffer{},
+			expBts: []byte{0x08, 0x96, 0x01, 0x12, 0x06, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67},
+		},
+		{
+			name:   "SuccessFirstField",
+			in:     bytes.NewReader([]byte{0x08, 0x96, 0x01}),
+			addr:   conf.Listen,
+			method: "/mock.Mock/Echo",
+			out:    &bytes.Buffer{},
+			expBts: []byte{0x08, 0x96, 0x01},
+		},
+		{
+			name:   "SuccessLastField",
+			in:     bytes.NewReader([]byte{0x12, 0x06, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67}),
+			addr:   conf.Listen,
+			method: "/mock.Mock/Echo",
+			out:    &bytes.Buffer{},
+			expBts: []byte{0x12, 0x06, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

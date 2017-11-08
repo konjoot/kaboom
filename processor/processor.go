@@ -2,7 +2,6 @@ package processor
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"io/ioutil"
 
@@ -58,7 +57,7 @@ type Response struct {
 
 // Unmarshal is a method for proto.Unmarshaler interface
 func (out *Response) Unmarshal(buf []byte) error {
-	_, err := fmt.Fprint(out.Payload, buf)
+	_, err := out.Payload.Write(buf)
 	return err
 }
 
