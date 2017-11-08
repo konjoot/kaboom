@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 
@@ -22,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	n, err := fmt.Fprintln(os.Stdout, bts)
+	n, err := os.Stdout.Write(bts)
 	if err != nil {
 		log.Println(err)
 	}
