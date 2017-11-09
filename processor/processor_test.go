@@ -2,6 +2,7 @@ package processor_test
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -9,10 +10,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/konjoot/kaboom/processor"
-
 	"github.com/konjoot/kaboom/config"
 	"github.com/konjoot/kaboom/mock"
+	"github.com/konjoot/kaboom/processor"
 	"google.golang.org/grpc"
 )
 
@@ -34,9 +34,9 @@ func TestMain(m *testing.M) {
 	started := make(chan struct{})
 	go func() {
 		defer s.GracefulStop()
-		close(started)
-		err := s.Serve(lis)
-		if err != nil {
+		go close(started)
+
+		if err := s.Serve(lis); err != nil {
 			fmt.Println(err)
 		}
 	}()
@@ -83,6 +83,33 @@ func TestProcess(t *testing.T) {
 			method: "/mock.Mock/Echo",
 			out:    &bytes.Buffer{},
 			expBts: []byte{0x12, 0x06, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67},
+		},
+		{
+			name:   "RandomInput",
+			in:     bytes.NewReader([]byte{0x13, 0x16}),
+			addr:   conf.Listen,
+			method: "/mock.Mock/Echo",
+			out:    &bytes.Buffer{},
+			expBts: []byte{},
+			expErr: errors.New("rpc error: code = Internal desc = grpc: error unmarshalling request: unexpected EOF"),
+		},
+		{
+			name:   "BadEndpoint",
+			in:     bytes.NewReader([]byte{0x13, 0x16}),
+			addr:   "localhost:3000",
+			method: "/mock.Mock/Echo",
+			out:    &bytes.Buffer{},
+			expBts: []byte{},
+			expErr: errors.New("rpc error: code = Unavailable desc = grpc: the connection is unavailable"),
+		},
+		{
+			name:   "WrongMethodName",
+			in:     bytes.NewReader([]byte{0x13, 0x16}),
+			addr:   conf.Listen,
+			method: "/mock.Mock/WrongMethodName",
+			out:    &bytes.Buffer{},
+			expBts: []byte{},
+			expErr: errors.New("rpc error: code = Unimplemented desc = unknown method WrongMethodName"),
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
